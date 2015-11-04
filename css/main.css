@@ -1,1 +1,11 @@
-body,html{height:100%}canvas{margin:0 auto;display:block;vertical-align:middle}
+body, html{
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+canvas{
+  display: block;
+  margin: 0 auto;
+  vertical-align: middle;
+}

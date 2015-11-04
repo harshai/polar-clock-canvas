@@ -17,34 +17,36 @@
   },
 
   createCircle = function(cxt, cp, perc, callback) {
-    cxt.lineWidth = 10;
+    cxt.lineWidth = 30;
     cxt.beginPath();
+    // cxt.arc(cp.x, cp.y, Math.min(window.innerWidth, window.innerHeight)/2 - 20, 0, Math.PI*2);
+    // cxt.fill()
     cxt.arc(cp.x, cp.y, cp.rad, -(cp.quart), ((cp.circ) * perc) - cp.quart, cp.counterClockwise);
     cxt.stroke();
     if (callback) callback.call();
   },
 
   createParams = function() {
-   var d = new Date();
+   var d = new Date(),
+      second = d.getSeconds()  / 60,
+      minute = d.getMinutes() / 60,
+      hour = d.getHours() / 24,
+      weekday = d.getDay() / 7,
+      date = (d.getDate() - 1 ) / days(),
+      month = d.getMonth() / 12;
 
    function days() {
      return 32 - new Date(d.getYear(), d.getMonth(), 32).getDate();
    }
 
-   var second = d.getSeconds()  / 60;
-   var minute = (d.getMinutes() + second) / 60;
-   var hour = (d.getHours() + minute) / 24;
-   var weekday = (d.getDay() + hour) / 7;
-   var date = (d.getDate() - 1 + hour) / days();
-   var month = (d.getMonth() + date) / 12;
 
    return [
-       { value: second,  index: .7},
-       { value: minute,  index: .6},
-       { value: hour,    index: .5},
-       { value: weekday, index: .3},
-       { value: date,    index: .2},
-       { value: month,   index: .1},
+       { value: second,  factor: 0.8},
+       { value: minute,  factor: 0.7},
+       { value: hour,    factor: 0.6},
+       { value: weekday, factor: 0.5},
+       { value: date,    factor: 0.4},
+       { value: month,   factor: 0.3},
      ];
   },
 
@@ -57,7 +59,7 @@
         var circleParams = {
           x: window.innerWidth/2,
           y: window.innerHeight/2,
-          rad: ((window.innerWidth < window.innerHeight? window.innerWidth/2 : window.innerHeight/2) - 20) * el.index,
+          rad: Math.min(window.innerWidth, window.innerHeight)/2 * el.factor - 20,
           counterClockwise: false,
           circ: Math.PI * 2,
           quart: Math.PI / 2
@@ -65,6 +67,7 @@
         cxt.strokeStyle = "orange";
         createCircle(cxt, circleParams, el.value);
       });
+
       requestAnimationFrame(function(){
         animate(cxt);
       });
