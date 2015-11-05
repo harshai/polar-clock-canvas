@@ -16,24 +16,21 @@
     return cxt || !!cxt;
   },
 
-  createCircle = function(cxt, cp, perc, callback) {
-    cxt.lineWidth = 30;
+  createCircle = function(cxt, cp, perc) {
+    cxt.lineWidth = 45;
     cxt.beginPath();
-    // cxt.arc(cp.x, cp.y, Math.min(window.innerWidth, window.innerHeight)/2 - 20, 0, Math.PI*2);
-    // cxt.fill()
     cxt.arc(cp.x, cp.y, cp.rad, -(cp.quart), ((cp.circ) * perc) - cp.quart, cp.counterClockwise);
     cxt.stroke();
-    if (callback) callback.call();
   },
 
   createParams = function() {
    var d = new Date(),
-      second = d.getSeconds()  / 60,
-      minute = d.getMinutes() / 60,
-      hour = d.getHours() / 24,
-      weekday = d.getDay() / 7,
-      date = (d.getDate() - 1 ) / days(),
-      month = d.getMonth() / 12;
+      second = (d.getSeconds() + d.getMilliseconds()/1000)/ 60 ,
+      minute = (d.getMinutes() + second) / 60,
+      hour = (d.getHours() + minute) / 24,
+      weekday = (d.getDay() + hour)/ 7,
+      date = (d.getDate() - 1 + hour) / days(),
+      month = (d.getMonth() + date)/ 12;
 
    function days() {
      return 32 - new Date(d.getYear(), d.getMonth(), 32).getDate();
@@ -49,13 +46,15 @@
        { value: month,   factor: 0.3},
      ];
   },
-
+  generateColor = function(value, factor) {
+    return "hsla(" + (360 * value - 180) + ", 50%, 50%, " + 1 +")";
+  },
   animate = function(context){
     var cxt = context;
     if (cxt) {
       var paramList = createParams();
       cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
-      paramList.forEach(function(el, i, arr){
+      paramList.forEach(function(el, i, arr) {
         var circleParams = {
           x: window.innerWidth/2,
           y: window.innerHeight/2,
@@ -64,18 +63,16 @@
           circ: Math.PI * 2,
           quart: Math.PI / 2
         }
-        cxt.strokeStyle = "orange";
+        cxt.strokeStyle = generateColor(el.value, el.factor)
         createCircle(cxt, circleParams, el.value);
       });
-
       requestAnimationFrame(function(){
         animate(cxt);
       });
     } else {
       document.write("Canvas not supported, please try a modern browser")
     }
-  }
-
+  };
   animate(createCanvas());
 
 }(document);
