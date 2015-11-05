@@ -16,8 +16,12 @@
     return cxt || !!cxt;
   },
 
+  getClockDimensions = function(){
+    return Math.min(1024/2, (Math.min(window.innerWidth, window.innerHeight)/2));
+  },
+
   createCircle = function(cxt, cp, perc) {
-    cxt.lineWidth = 45;
+    cxt.lineWidth = 0.095 * getClockDimensions();
     cxt.beginPath();
     cxt.arc(cp.x, cp.y, cp.rad, -(cp.quart), ((cp.circ) * perc) - cp.quart, cp.counterClockwise);
     cxt.stroke();
@@ -36,7 +40,6 @@
      return 32 - new Date(d.getYear(), d.getMonth(), 32).getDate();
    }
 
-
    return [
        { value: second,  factor: 0.8},
        { value: minute,  factor: 0.7},
@@ -46,11 +49,13 @@
        { value: month,   factor: 0.3},
      ];
   },
+
   generateColor = function(value, factor) {
     return "hsla(" + (360 * value - 180) + ", 50%, 50%, " + 1 +")";
   },
-  animate = function(context){
-    var cxt = context;
+
+  animate = function(){
+    var cxt = createCanvas();
     if (cxt) {
       var paramList = createParams();
       cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
@@ -58,7 +63,7 @@
         var circleParams = {
           x: window.innerWidth/2,
           y: window.innerHeight/2,
-          rad: Math.min(window.innerWidth, window.innerHeight)/2 * el.factor - 20,
+          rad: getClockDimensions() * el.factor - 20,
           counterClockwise: false,
           circ: Math.PI * 2,
           quart: Math.PI / 2
@@ -70,9 +75,10 @@
         animate(cxt);
       });
     } else {
-      document.write("Canvas not supported, please try a modern browser")
+      document.write("This is an experiment that depends on canvas, which is not supported by your browser. Please try modern browser.")
     }
   };
-  animate(createCanvas());
+
+  window.onload = animate();
 
 }(document);
