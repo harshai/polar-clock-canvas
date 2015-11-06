@@ -16,14 +16,26 @@
     return cxt || !!cxt;
   },
 
-  getClockDimensions = function(){
-    return Math.min(1024/2, (Math.min(window.innerWidth, window.innerHeight)/2));
+  getClockDimensions = function(scale){
+    return Math.min(1024/2, (Math.min(window.innerWidth, window.innerHeight)/2)) * scale;
   },
 
-  createCircle = function(cxt, cp, perc) {
-    cxt.lineWidth = 0.095 * getClockDimensions();
+  createCircle = function(cxt, radius, perc) {
+    var x = window.innerWidth/2,
+        y = window.innerHeight/2,
+        counterClockwise =  false,
+        full = Math.PI * 2,
+        quarter = Math.PI / 2,
+        color = generateColor(perc)
+
+    cxt.shadowOffsetX = 0;
+    cxt.shadowOffsetY = 0;
+    cxt.shadowBlur = 5;
+    cxt.lineWidth = 0.08 * getClockDimensions(0.8);
     cxt.beginPath();
-    cxt.arc(cp.x, cp.y, cp.rad, -(cp.quart), ((cp.circ) * perc) - cp.quart, cp.counterClockwise);
+    cxt.shadowColor = color;
+    cxt.strokeStyle = color;
+    cxt.arc(x, y, radius, -(quarter), ((full) * perc) - quarter, counterClockwise);
     cxt.stroke();
   },
 
@@ -33,12 +45,12 @@
       minute = (d.getMinutes() + second) / 60,
       hour = (d.getHours() + minute) / 24,
       weekday = (d.getDay() + hour)/ 7,
-      date = (d.getDate() - 1 + hour) / days(),
+      date = (d.getDate() - 1 + hour) / daysInMonth(d.getMonth() - 1, d.getFullYear()),
       month = (d.getMonth() + date)/ 12;
 
-   function days() {
-     return 32 - new Date(d.getYear(), d.getMonth(), 32).getDate();
-   }
+    function daysInMonth(m, y) {
+        return (m == 2) ? (!((y % 4) || (!(y % 100) && (y % 400))) ? 29 : 28) : (m >> 3 ^ m) & 1 ? 31 : 30;
+    }
 
    return [
        { value: second,  factor: 0.8},
@@ -50,32 +62,25 @@
      ];
   },
 
-  generateColor = function(value, factor) {
-    return "hsla(" + (360 * value - 180) + ", 50%, 50%, " + 1 +")";
+  generateColor = function(value) {
+    return "hsl(" + (360 * (value)) + ", 40%, 50% )";
   },
 
-  animate = function(){
-    var cxt = createCanvas();
+  animate = function() {
+    var cxt = createCanvas(),
+        radius;
     if (cxt) {
-      var paramList = createParams();
       cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
-      paramList.forEach(function(el, i, arr) {
-        var circleParams = {
-          x: window.innerWidth/2,
-          y: window.innerHeight/2,
-          rad: getClockDimensions() * el.factor - 20,
-          counterClockwise: false,
-          circ: Math.PI * 2,
-          quart: Math.PI / 2
-        }
-        cxt.strokeStyle = generateColor(el.value, el.factor)
-        createCircle(cxt, circleParams, el.value);
+      createParams().forEach(function(el, i, arr) {
+        radius = getClockDimensions(0.8) * el.factor - 20;
+        createCircle(cxt, radius, el.value);
       });
+
       requestAnimationFrame(function(){
         animate(cxt);
       });
     } else {
-      document.write("This is an experiment that depends on canvas, which is not supported by your browser. Please try modern browser.")
+      document.write("This is an experiment that depends on canvas, which is not supported by your browser. Please try using a modern browser.")
     }
   };
 
