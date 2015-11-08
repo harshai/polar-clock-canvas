@@ -2,10 +2,24 @@ body, html{
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
 }
 
 canvas{
   display: block;
   margin: 0 auto;
   vertical-align: middle;
+}
+
+footer {
+  position: absolute;
+  bottom: 2%;
+  right: 2%;
+}
+
+h1{
+  position: absolute;
+  text-align: center;
+  left: 0;
+  right: 0;
 }
