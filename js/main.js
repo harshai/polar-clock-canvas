@@ -1,13 +1,13 @@
-~function(document)   {
+~function(document, window)   {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                                 window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  var w, h, full, quarter,
+  var w, h, full, quarter, darkGray = "#333",
   createCanvas = function() {
     var canvas = document.getElementById('polar-clock') ?
                  document.getElementById('polar-clock') :
                  document.createElement('canvas'),
-    cxt = canvas.getContext('2d');
-    if(cxt) {
+        cxt;
+    if(cxt = canvas.getContext('2d')) {
       cxt.canvas.width = w = window.innerWidth;
       cxt.canvas.height = h = window.innerHeight;
       canvas.setAttribute('id', 'polar-clock');
@@ -26,11 +26,8 @@
         counterClockwise =  false,
         color = generateColor(perc);
         full = Math.PI * 2,
-        quarter = Math.PI / 2,
+        quarter = Math.PI / 2;
 
-    cxt.shadowOffsetX = 0;
-    cxt.shadowOffsetY = 0;
-    cxt.shadowBlur = 4;
     cxt.lineWidth = 0.08 * getClockDimensions(0.8);
     cxt.beginPath();
     cxt.shadowColor = color;
@@ -40,26 +37,27 @@
     cxt.closePath();
   },
 
+
   createParams = function() {
-   var d = new Date(),
-      second = (d.getSeconds() + d.getMilliseconds()/1000)/ 60 ,
-      minute = (d.getMinutes() + second) / 60,
-      hour = (d.getHours() + minute) / 24,
-      weekday = (d.getDay() + hour)/ 7,
-      date = (d.getDate() - 1 + hour) / daysInMonth(d.getMonth() - 1, d.getFullYear()),
-      month = (d.getMonth() + date)/ 12;
+   var d = new Date(), secondText, minuteText, hourText, weekdayText, dateText, monthText,
+      second = ((secondText = d.getSeconds()) + d.getMilliseconds()/1000)/ 60 ,
+      minute = ((minuteText = d.getMinutes()) + second) / 60,
+      hour = ((hourText = d.getHours()) + minute) / 24,
+      weekday = ((weekdayText = d.getDay()) + hour)/ 7,
+      date = ((dateText = d.getDate()) + hour) / daysInMonth(d.getMonth() - 1, d.getFullYear()),
+      month = ((monthText = d.getMonth()) + date)/ 12;
 
     function daysInMonth(m, y) {
         return (m == 2) ? (!((y % 4) || (!(y % 100) && (y % 400))) ? 29 : 28) : (m >> 3 ^ m) & 1 ? 31 : 30;
     }
 
    return [
-       { value: second,  factor: 0.8},
-       { value: minute,  factor: 0.7},
-       { value: hour,    factor: 0.6},
-       { value: weekday, factor: 0.5},
-       { value: date,    factor: 0.4},
-       { value: month,   factor: 0.3},
+       { value: second,  factor: 0.8, text: secondText},
+       { value: minute,  factor: 0.7, text: minuteText},
+       { value: hour,    factor: 0.6, text: hourText},
+       { value: weekday, factor: 0.5, text: weekdayText},
+       { value: date,    factor: 0.4, text: dateText},
+       { value: month,   factor: 0.3, text: monthText},
      ];
   },
 
@@ -67,22 +65,54 @@
     return "hsl(" + (360 * (value)) + ", 40%, 50% )";
   },
 
+  printTimeComponent = function(cxt, param, radius){
+    var formattedTime,
+        weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    cxt.font = 0.06 * getClockDimensions(0.8) +"px Helvetica";
+    cxt.fillStyle = "#FFF";
+    switch(param.factor) {
+      case 0.8:
+      formattedTime = param.text + " s";
+      break;
+      case 0.7:
+      formattedTime = param.text + " m";
+      break;
+      case 0.6:
+      formattedTime = param.text + " h";
+      break;
+      case 0.5:
+      formattedTime = weekdays[param.text];
+      break;
+      case 0.4:
+      formattedTime = param.text + " d";
+      break;
+      case 0.3:
+      formattedTime = months[param.text];
+      break;
+      default:
+      formattedTime = "";
+    }
+    cxt.fillText(formattedTime, w/2, h/2 - radius * 0.95);
+  }
+
   animate = function(cxt) {
     var radius;
     cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
     cxt.arc(w/2, h/2, getClockDimensions(0.65), -quarter, full - quarter);
-    cxt.fillStyle = "#333";
+    cxt.fillStyle = darkGray;
     cxt.fill();
-    createParams().forEach(function(el, i, arr) {
-      radius = getClockDimensions(0.8) * el.factor - 20;
-      createCircle(cxt, radius, el.value);
+    createParams().forEach(function(param, i, arr) {
+      radius = getClockDimensions(0.8) * param.factor - 20;
+      createCircle(cxt, radius, param.value);
+      printTimeComponent(cxt, param, radius);
     });
     requestAnimationFrame(function(){
       animate(cxt);
     });
   };
 
-  window.onload = function() {
+  window.onload = window.onresize = function() {
     if(cxt = createCanvas()){
       animate(cxt);
     } else {
@@ -90,4 +120,4 @@
     }
   }
 
-}(document);
+}(document, window);
