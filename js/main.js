@@ -1,7 +1,9 @@
 ~function(document, window)   {
+  "use strict";
+
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                                 window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  var w, h, full, quarter, darkGray = "#333",
+  var w, h, full, quarter, darkGray = "#333", cxt,
   createCanvas = function() {
     var canvas = document.getElementById('polar-clock') ?
                  document.getElementById('polar-clock') :
@@ -69,7 +71,7 @@
     var formattedTime,
         weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    cxt.font = 0.06 * getClockDimensions(0.8) +"px Helvetica";
+    cxt.font = 0.06 * getClockDimensions(0.8) +"px sans-serif";
     cxt.fillStyle = "#FFF";
 
       switch(param.factor) {
@@ -86,7 +88,7 @@
         formattedTime = weekdays[param.text];
         break;
       case 0.4:
-        suffix = param.text > 3 && param.text < 21 ? "th" :
+        var suffix = param.text > 3 && param.text < 21 ? "th" :
                  param.text % 10 == 1 ? "st" :
                  param.text % 10 == 2 ? "nd" :
                  param.text % 10 == 3 ? "rd" : "th";
@@ -98,13 +100,13 @@
       default:
         formattedTime = "";
     }
-    cxt.fillText(formattedTime, w/2, h/2 - radius * 0.95);
-  }
+    cxt.fillText(formattedTime, w/2 + 3, h/2 - radius + 8);
+  },
 
   animate = function(cxt) {
     var radius;
     cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
-    cxt.arc(w/2, h/2, getClockDimensions(0.65), -quarter, full - quarter);
+    cxt.arc(w/2, h/2, getClockDimensions(0.69) - 20, -quarter, full - quarter);
     cxt.fillStyle = darkGray;
     cxt.fill();
     createParams().forEach(function(param, i, arr) {
@@ -124,5 +126,6 @@
       document.write("This is an experiment that depends on canvas, which is not supported by your browser. Please try using a modern browser.")
     }
   }
+
 
 }(document, window);
