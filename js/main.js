@@ -71,27 +71,32 @@
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     cxt.font = 0.06 * getClockDimensions(0.8) +"px Helvetica";
     cxt.fillStyle = "#FFF";
-    switch(param.factor) {
+
+      switch(param.factor) {
       case 0.8:
-      formattedTime = param.text + " s";
-      break;
+        formattedTime = param.text + " s";
+        break;
       case 0.7:
-      formattedTime = param.text + " m";
-      break;
+        formattedTime = param.text + " m";
+        break;
       case 0.6:
-      formattedTime = param.text + " h";
-      break;
+        formattedTime = param.text + " h";
+        break;
       case 0.5:
-      formattedTime = weekdays[param.text];
-      break;
+        formattedTime = weekdays[param.text];
+        break;
       case 0.4:
-      formattedTime = param.text + " d";
-      break;
+        suffix = param.text > 3 && param.text < 21 ? "th" :
+                 param.text % 10 == 1 ? "st" :
+                 param.text % 10 == 2 ? "nd" :
+                 param.text % 10 == 3 ? "rd" : "th";
+        formattedTime = param.text + suffix;
+        break;
       case 0.3:
-      formattedTime = months[param.text];
-      break;
+        formattedTime = months[param.text];
+        break;
       default:
-      formattedTime = "";
+        formattedTime = "";
     }
     cxt.fillText(formattedTime, w/2, h/2 - radius * 0.95);
   }
