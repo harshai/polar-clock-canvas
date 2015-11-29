@@ -39,6 +39,10 @@
     cxt.closePath();
   },
 
+  daysInMonth = function (m, y) {
+        return (m === 2) ? (!((y % 4) || (!(y % 100) && (y % 400))) ? 29 : 28) : (m >> 3 ^ m) & 1 ? 31 : 30;
+  },
+
 
   createParams = function() {
    var d = new Date(), secondText, minuteText, hourText, weekdayText, dateText, monthText,
@@ -48,10 +52,6 @@
       weekday = ((weekdayText = d.getDay()) + hour)/ 7,
       date = ((dateText = d.getDate()) + hour) / daysInMonth(d.getMonth() - 1, d.getFullYear()),
       month = ((monthText = d.getMonth()) + date)/ 12;
-
-    function daysInMonth(m, y) {
-        return (m == 2) ? (!((y % 4) || (!(y % 100) && (y % 400))) ? 29 : 28) : (m >> 3 ^ m) & 1 ? 31 : 30;
-    }
 
    return [
        { value: second,  factor: 0.8, text: secondText},
